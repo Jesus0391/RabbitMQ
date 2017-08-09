@@ -35,6 +35,7 @@ namespace Receive
                         int dots = message.Split('.').Length - 1;
                         Thread.Sleep(dots * 1000);
                         Console.WriteLine(" [x] Done");
+
                     };
                     channel.BasicConsume(queue: "hello", autoAck: true, consumer: consumer);
 
