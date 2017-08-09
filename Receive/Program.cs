@@ -32,10 +32,6 @@ namespace Receive
                         var body = ea.Body;
                         var message = Encoding.UTF8.GetString(body);
                         Console.WriteLine(" [x] Received {0}", message);
-                        int dots = message.Split('.').Length - 1;
-                        Thread.Sleep(dots * 1000);
-                        Console.WriteLine(" [x] Done");
-
                     };
                     channel.BasicConsume(queue: "hello", autoAck: true, consumer: consumer);
 

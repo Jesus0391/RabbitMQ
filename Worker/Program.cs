@@ -1,7 +1,10 @@
-﻿using System;
+﻿using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Worker
@@ -10,6 +13,42 @@ namespace Worker
     {
         static void Main(string[] args)
         {
+            var factory = new ConnectionFactory()
+            {
+                HostName = "localhost",
+                Port = AmqpTcpEndpoint.UseDefaultPort
+                //Port = 5672
+            };
+            using (var connection = factory.CreateConnection())
+            {
+                using (var channel = connection.CreateModel())
+                {
+                    //Queue 
+                    channel.QueueDeclare("task_queue", true, false, false, null);
+                    //channel.BasicQos(prefetchSize: 0, prefetchCount: 2, global: false);
+
+                    Console.WriteLine(" [*] Waiting for messages.");
+
+                    var consumer = new EventingBasicConsumer(channel);
+                    consumer.Received += (model, ea) =>
+                    {
+                        var body = ea.Body;
+                        var message = Encoding.UTF8.GetString(body);
+                        Console.WriteLine(" [x] Received: '{0}'", message);
+
+                        int dots = message.Split('.').Length - 1;
+                        Thread.Sleep(dots * 1000);
+
+                        //Console.WriteLine(" [x] Done");
+                        //channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+                    };
+                    channel.BasicConsume(queue: "task_queue", autoAck: true, consumer: consumer);
+
+                    Console.WriteLine("Preess any key to exit");
+                    Console.ReadLine();
+                }
+            }
+
         }
     }
 }

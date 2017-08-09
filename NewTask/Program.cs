@@ -11,7 +11,7 @@ namespace NewTask
     {
         static void Main(string[] args)
         {
-            var factory = new ConnectwionFactory
+            var factory = new ConnectionFactory
             {
                 HostName = "localhost",
                 Port = AmqpTcpEndpoint.UseDefaultPort
@@ -20,22 +20,24 @@ namespace NewTask
             {
                 using (var channel = connection.CreateModel())
                 {
-                    channel.QueueDeclare("hello", false, false, false, null);
-
-                    var message = GetMessage(args);
-                    var body = Encoding.UTF8.GetBytes(message);
-
+                    channel.QueueDeclare("task_queue", true, false, false, null);
                     var properties = channel.CreateBasicProperties();
                     properties.Persistent = true;
+                    
+                    while (true)
+                    {
+                        var message = Console.ReadLine();//GetMessage(args);
+                        var body = Encoding.UTF8.GetBytes(message);
 
-                    channel.BasicPublish(exchange: "",
-                                         routingKey: "task_queue",
-                                         basicProperties: properties,
-                                         body: body);
-                    Console.WriteLine(" [x] Sent {0}", message);
+                       
+                        channel.BasicPublish(exchange: "",
+                                             routingKey: "task_queue",
+                                             basicProperties: properties,
+                                             body: body);
+                    }
+                  
                 }
             }
-            Console.ReadLine();
         }
         private static string GetMessage(string[] args)
         {
