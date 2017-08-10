@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EmitLog
+namespace EmitLogDirect
 {
     class Program
     {
@@ -15,26 +15,24 @@ namespace EmitLog
             using (var connection = factory.CreateConnection())
             using (var channel = connection.CreateModel())
             {
-                channel.ExchangeDeclare(exchange: "logs", type: "fanout");
-                Console.WriteLine(" Press ctrl+C to exit.");
-                while (true)
+                //Direct Logs
+                channel.ExchangeDeclare(exchange: "direct_logs", type: "direct");
+                Console.WriteLine(" Press Ctrl + C to exit.");
+                while (true) //write type of routing key for receiver processed
                 {
-                    var message = Console.ReadLine();//GetMessage(args);
+                    Console.WriteLine("Write Severity Name:");
+                    var severity = Console.ReadLine();//GetMessage(args);
+                    Console.WriteLine("Write Message Inf:");
+                    var message = Console.ReadLine();
                     var body = Encoding.UTF8.GetBytes(message);
-                    channel.BasicPublish(exchange: "logs",
-                                         routingKey: "",
+                    //Publish severals situations like INFO, WARNING, ERROR, ETC.
+                    channel.BasicPublish(exchange: "direct_logs",
+                                         routingKey: severity,
                                          basicProperties: null,
                                          body: body);
                     //Console.WriteLine(" [x] Sent {0}", message);
                 }
             }
-        }
-
-        private static string GetMessage(string[] args)
-        {
-            return ((args.Length > 0)
-                   ? string.Join(" ", args)
-                   : "info: Hello World!");
         }
     }
 }
