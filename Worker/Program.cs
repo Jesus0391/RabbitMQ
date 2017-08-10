@@ -25,7 +25,7 @@ namespace Worker
                 {
                     //Queue 
                     channel.QueueDeclare("task_queue", true, false, false, null);
-                    //channel.BasicQos(prefetchSize: 0, prefetchCount: 2, global: false);
+                    channel.BasicQos(prefetchSize: 0, prefetchCount: 2, global: false);
 
                     Console.WriteLine(" [*] Waiting for messages.");
 
@@ -40,7 +40,7 @@ namespace Worker
                         Thread.Sleep(dots * 1000);
 
                         //Console.WriteLine(" [x] Done");
-                        //channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
+                        channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
                     };
                     channel.BasicConsume(queue: "task_queue", autoAck: true, consumer: consumer);
 
